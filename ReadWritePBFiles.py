@@ -22,10 +22,11 @@ class ReadWritePBFile( Utils ):
         #sched.add_job( self.downloadFile, 'interval', minutes=int(self.timeloop) )
         #sched.add_job( self.downloadFile, 'interval', seconds=6 )
         #sched.start()
-        #self.downloadFile()
+       
 
-        gtfsR=GTFSrDB(create=True)
-
+    def runEvent(self):
+        self.downloadFile()
+        gtfsR = GTFSrDB( create=True,delete_all=True )  # creo le tabelle se non esistono, tronco le tabelle se sono piene
 
     def downloadFile(self):
         self.moveFile()
