@@ -89,13 +89,13 @@ if opts.vehiclePositions == None:
 logger = logging.getLogger( __name__ )
 
 class GTFSrDB( Utils ):
-    def __init__(self, create=False, delete_all=False,lang="it"):
+    def __init__(self, create=False, delete_all=False,lang="it",verbose=False):
         self.create = create
         self.delete_all = delete_all
         self.lang=lang
         self.getConf( "config.ini" )
         # Connect to the database
-        self.engine = create_engine( self.postgres_url, echo=True )
+        self.engine = create_engine( self.postgres_url, echo=verbose )
         # sessionmaker returns a class
         self.session = sessionmaker( bind=self.engine )()
         self.checkTableExist()

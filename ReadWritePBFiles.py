@@ -22,7 +22,7 @@ class ReadWritePBFile( Utils ):
         #sched.add_job( self.downloadFile, 'interval', minutes=int(self.timeloop) )
         #sched.add_job( self.downloadFile, 'interval', seconds=6 )
         #sched.start()
-       
+
 
     def runEvent(self):
         self.downloadFile()
