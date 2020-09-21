@@ -89,9 +89,10 @@ if opts.vehiclePositions == None:
 logger = logging.getLogger( __name__ )
 
 class GTFSrDB( Utils ):
-    def __init__(self, create=False, delete_all=False):
+    def __init__(self, create=False, delete_all=False,lang="it"):
         self.create = create
         self.delete_all = delete_all
+        self.lang=lang
         self.getConf( "config.ini" )
         # Connect to the database
         self.engine = create_engine( self.postgres_url, echo=True )
@@ -198,87 +199,84 @@ class GTFSrDB( Utils ):
                             dbtu.StopTimeUpdates.append( dbstu )
 
                         self.session.add( dbtu )
-                    """
-                    if opts.alerts:
-                        fm = gtfs_realtime_pb2.FeedMessage()
-                        fm.ParseFromString(
-                            urlopen(opts.alerts).read()
+
+                    fm = gtfs_realtime_pb2.FeedMessage()
+                    with open( self.getLocalFileName( self.alerts_feed ), 'rb' ) as f:
+                        buff = f.read()
+                    fm.ParseFromString( buff )
+
+                    # Convert this a Python object, and save it to be placed into each
+                    # trip_update
+                    timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
+
+                    # Check the feed version
+                    if fm.header.gtfs_realtime_version != u'1.0':
+                        logger.info( "Warning: feed version has changed: found {}, expected 1.0".format(
+                            fm.header.gtfs_realtime_version ) )
+                    logger.info( "Adding {} alerts".format( len( fm.entity ) ) )
+
+                    for entity in fm.entity:
+                        alert = entity.alert
+                        dbalert = Alert(
+                            start = alert.active_period[0].start,
+                            end = alert.active_period[0].end,
+                            cause = alert.DESCRIPTOR.enum_types_by_name['Cause'].values_by_number[alert.cause].name,
+                            effect = alert.DESCRIPTOR.enum_types_by_name['Effect'].values_by_number[alert.effect].name,
+                            url = self.getTrans(alert.url, self.lang),
+                            header_text = self.getTrans(alert.header_text, self.lang),
+                            description_text = self.getTrans(alert.description_text,
+                                                        self.lang)
                             )
 
-                        # Convert this a Python object, and save it to be placed into each
-                        # trip_update
-                        timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
+                        self.session.add(dbalert)
+                        for ie in alert.informed_entity:
+                            dbie = EntitySelector(
+                                agency_id = ie.agency_id,
+                                route_id = ie.route_id,
+                                route_type = ie.route_type,
+                                stop_id = ie.stop_id,
 
-                        # Check the feed version
-                        if fm.header.gtfs_realtime_version != u'1.0':
-                            print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
+                                trip_id = ie.trip.trip_id,
+                                trip_route_id = ie.trip.route_id,
+                                trip_start_time = ie.trip.start_time,
+                                trip_start_date = ie.trip.start_date)
+                            self.session.add(dbie)
+                            dbalert.InformedEntities.append(dbie)
 
-                            print 'Adding %s alerts' % len(fm.entity)
-                            for entity in fm.entity:
-                                alert = entity.alert
-                                dbalert = Alert(
-                                    start = alert.active_period[0].start,
-                                    end = alert.active_period[0].end,
-                                    cause = alert.DESCRIPTOR.enum_types_by_name['Cause'].values_by_number[alert.cause].name,
-                                    effect = alert.DESCRIPTOR.enum_types_by_name['Effect'].values_by_number[alert.effect].name,
-                                    url = getTrans(alert.url, opts.lang),
-                                    header_text = getTrans(alert.header_text, opts.lang),
-                                    description_text = getTrans(alert.description_text,
-                                                                opts.lang)
-                                    )
 
-                                session.add(dbalert)
-                                for ie in alert.informed_entity:
-                                    dbie = EntitySelector(
-                                        agency_id = ie.agency_id,
-                                        route_id = ie.route_id,
-                                        route_type = ie.route_type,
-                                        stop_id = ie.stop_id,
+                    fm = gtfs_realtime_pb2.FeedMessage()
+                    with open( self.getLocalFileName( self.vehicle_feed ), 'rb' ) as f:
+                        buff = f.read()
+                    fm.ParseFromString( buff )
+                    # Convert this a Python object, and save it to be placed into each
+                    # vehicle_position
+                    timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
 
-                                        trip_id = ie.trip.trip_id,
-                                        trip_route_id = ie.trip.route_id,
-                                        trip_start_time = ie.trip.start_time,
-                                        trip_start_date = ie.trip.start_date)
-                                    session.add(dbie)
-                                    dbalert.InformedEntities.append(dbie)
-                    if opts.vehiclePositions:
-                        fm = gtfs_realtime_pb2.FeedMessage()
-                        fm.ParseFromString(
-                            urlopen(opts.vehiclePositions).read()
-                            )
+                    if fm.header.gtfs_realtime_version != u'1.0':
+                        logger.info( "Warning: feed version has changed: found {}, expected 1.0".format(
+                            fm.header.gtfs_realtime_version ) )
+                    logger.info( "Adding {} vehicle".format( len( fm.entity ) ) )
 
-                        # Convert this a Python object, and save it to be placed into each
-                        # vehicle_position
-                        timestamp = datetime.datetime.utcfromtimestamp(fm.header.timestamp)
+                    for entity in fm.entity:
+                        vp = entity.vehicle
+                        dbvp = VehiclePosition(
+                            trip_id = vp.trip.trip_id,
+                            route_id = vp.trip.route_id,
+                            trip_start_time = vp.trip.start_time,
+                            trip_start_date = vp.trip.start_date,
+                            vehicle_id = vp.vehicle.id,
+                            vehicle_label = vp.vehicle.label,
+                            vehicle_license_plate = vp.vehicle.license_plate,
+                            position_latitude = vp.position.latitude,
+                            position_longitude = vp.position.longitude,
+                            position_bearing = vp.position.bearing,
+                            position_speed = vp.position.speed,
+                            timestamp = timestamp)
 
-                        # Check the feed version
-                        if fm.header.gtfs_realtime_version != u'1.0':
-                            print 'Warning: feed version has changed: found %s, expected 1.0' % fm.header.gtfs_realtime_version
-
-                        print 'Adding %s vehicle_positions' % len(fm.entity)
-                        for entity in fm.entity:
-
-                            vp = entity.vehicle
-
-                            dbvp = VehiclePosition(
-                                trip_id = vp.trip.trip_id,
-                                route_id = vp.trip.route_id,
-                                trip_start_time = vp.trip.start_time,
-                                trip_start_date = vp.trip.start_date,
-                                vehicle_id = vp.vehicle.id,
-                                vehicle_label = vp.vehicle.label,
-                                vehicle_license_plate = vp.vehicle.license_plate,
-                                position_latitude = vp.position.latitude,
-                                position_longitude = vp.position.longitude,
-                                position_bearing = vp.position.bearing,
-                                position_speed = vp.position.speed,
-                                timestamp = timestamp)
-
-                            session.add(dbvp)
+                        self.session.add(dbvp)
 
                     # This does deletes and adds, since it's atomic it never leaves us
                     # without data
-                    """
                     self.session.commit()
                 except Exception as e:
                     logger.error( "Exception occurred in iteration", e )

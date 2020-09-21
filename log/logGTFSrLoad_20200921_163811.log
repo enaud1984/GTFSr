@@ -1,0 +1,21 @@
+21/09/2020 16:38:12 - INFO:select version()
+21/09/2020 16:38:12 - INFO:{}
+21/09/2020 16:38:12 - INFO:select current_schema()
+21/09/2020 16:38:12 - INFO:{}
+21/09/2020 16:38:12 - INFO:SELECT CAST('test plain returns' AS VARCHAR(60)) AS anon_1
+21/09/2020 16:38:12 - INFO:{}
+21/09/2020 16:38:12 - INFO:SELECT CAST('test unicode returns' AS VARCHAR(60)) AS anon_1
+21/09/2020 16:38:12 - INFO:{}
+21/09/2020 16:38:12 - INFO:show standard_conforming_strings
+21/09/2020 16:38:12 - INFO:{}
+21/09/2020 16:38:12 - INFO:select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s
+21/09/2020 16:38:12 - INFO:{'name': 'trip_updates'}
+21/09/2020 16:38:12 - INFO:select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s
+21/09/2020 16:38:12 - INFO:{'name': 'stop_time_updates'}
+21/09/2020 16:38:12 - INFO:select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s
+21/09/2020 16:38:12 - INFO:{'name': 'alerts'}
+21/09/2020 16:38:12 - INFO:select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s
+21/09/2020 16:38:12 - INFO:{'name': 'entity_selectors'}
+21/09/2020 16:38:12 - INFO:select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where pg_catalog.pg_table_is_visible(c.oid) and relname=%(name)s
+21/09/2020 16:38:12 - INFO:{'name': 'vehicle_positions'}
+21/09/2020 16:38:12 - INFO:Adding 813 trip updates

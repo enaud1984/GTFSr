@@ -121,7 +121,7 @@ class EntitySelector(Base):
     stop_id = Column(String(10))
 
     # Collapsed TripDescriptor
-    trip_id = Column(String(10))
+    trip_id = Column(String(100))
     trip_route_id = Column(String(10))
     trip_start_time = Column(String(8))
     trip_start_date = Column(String(10))
@@ -134,13 +134,13 @@ class VehiclePosition(Base):
 
     # This replaces the TripDescriptor message
     # TODO: figure out the relations
-    trip_id = Column(String(10))
+    trip_id = Column(String(100))
     route_id = Column(String(10))
     trip_start_time = Column(String(8))
     trip_start_date = Column(String(10))
  
     # Collapsed VehicleDescriptor
-    vehicle_id = Column(String(10))
+    vehicle_id = Column(String(20))
     vehicle_label = Column(String(15))
     vehicle_license_plate = Column(String(10))
     
