@@ -2,14 +2,14 @@ import configparser
 import datetime
 import logging
 import os
-from apscheduler.schedulers.background import BlockingScheduler
+#from apscheduler.schedulers.background import BlockingScheduler
 import paramiko
 import shutil
 
 from GTFSr.gtfsrdb import GTFSrDB
 from utils import Utils
 
-sched = BlockingScheduler()  # background se contemporaneamente fa altro
+#sched = BlockingScheduler()  # background se contemporaneamente fa altro
 # notice that the "start to watch" process happen here
 logger = logging.getLogger( __name__ )
 
@@ -23,6 +23,8 @@ class ReadWritePBFile( Utils ):
         #sched.add_job( self.downloadFile, 'interval', seconds=6 )
         #sched.start()
 
+        #gtfsR = GTFSrDB( create=True, delete_all=True )
+        self.runEvent()
 
     def runEvent(self):
         self.downloadFile()

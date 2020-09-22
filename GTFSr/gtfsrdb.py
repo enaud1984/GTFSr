@@ -1,26 +1,11 @@
-#!/usr/bin/python
-
 # gtfsrdb.py: load gtfs-realtime data to a database
 # recommended to have the (static) GTFS data for the agency you are connecting
 # to already loaded.
 
-# Copyright 2011, 2013 Matt Conway
-
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-
-#   http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 # Authors:
 # Matt Conway: main code
-import configparser
+# Giuseppe Ventura: refactoring
+
 import logging
 
 from google.transit import gtfs_realtime_pb2
@@ -88,7 +73,14 @@ if opts.vehiclePositions == None:
 
 logger = logging.getLogger( __name__ )
 
+
 class GTFSrDB( Utils ):
+    """
+        :create: per creare le tabelle se non esistono,
+        :delete_all: troncare prima dell'inserimento,
+        :lang: lingua usata per prendere alcuni campi con il linguaggio settato (default="it")
+        :verbose: log più descrittivo
+    """
     def __init__(self, create=False, delete_all=False,lang="it",verbose=False):
         self.create = create
         self.delete_all = delete_all
@@ -175,7 +167,6 @@ class GTFSrDB( Utils ):
                             schedule_relationship=
                             tu.trip.DESCRIPTOR.enum_types_by_name['ScheduleRelationship'].values_by_number[
                                 tu.trip.schedule_relationship].name,
-
                             vehicle_id=tu.vehicle.id,
                             vehicle_label=tu.vehicle.label,
                             vehicle_license_plate=tu.vehicle.license_plate,
