@@ -12,11 +12,12 @@ from google.transit import gtfs_realtime_pb2
 import time
 import sys
 import datetime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import text
 # from urllib2 import urlopen
 from utils import Utils
-from .model import *
+from model import *
 
 '''
 p = OptionParser()
@@ -87,7 +88,10 @@ class GTFSrDB( Utils ):
         self.lang=lang
         self.getConf( "config.ini" )
         # Connect to the database
-        self.engine = create_engine( self.postgres_url, echo=verbose )
+        self.engine = create_engine( self.postgres_url,
+                                     connect_args={'options': '-csearch_path={}'.format("rsm_prova")},
+                                     echo=verbose )
+
         # sessionmaker returns a class
         self.session = sessionmaker( bind=self.engine )()
         self.checkTableExist()
@@ -266,6 +270,12 @@ class GTFSrDB( Utils ):
 
                         self.session.add(dbvp)
 
+                    connection = self.engine.raw_connection()
+                    cursor = connection.cursor()
+                    cursor.execute("call {}()".format(self.proc_name))
+                    cursor.close()
+                    connection.commit()
+                    connection.close()
                     # This does deletes and adds, since it's atomic it never leaves us
                     # without data
                     self.session.commit()

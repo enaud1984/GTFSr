@@ -106,7 +106,7 @@ class Alert(Base):
     effect = Column(String(20))
 
     url = Column(String(300))
-    header_text = Column(String(80))
+    header_text = Column(String(1000))
     description_text = Column(String(4000))
 
     InformedEntities = relationship('EntitySelector', backref='Alert')
