@@ -35,7 +35,6 @@ class Utils:
         # client.makedirs(hdfs_path)
         if os.path.isfile( local_path ):
             hdfs_file = hdfs_path + filename
-            logger.info( "Log File mosso in hdfs"+hdfs_file )
             client.upload( hdfs_file, local_path )
             os.remove( local_path )
 

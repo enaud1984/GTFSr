@@ -86,10 +86,10 @@ class GTFSrDB( Utils ):
         self.create = create
         self.delete_all = delete_all
         self.lang=lang
-        self.getConf( "config.ini" )
+        self.getConf( "config.ini")
         # Connect to the database
         self.engine = create_engine( self.postgres_url,
-                                     connect_args={'options': '-csearch_path={}'.format("rsm_prova")},
+                                     connect_args={'options': '-csearch_path={}'.format("rsm")},
                                      echo=verbose )
 
         # sessionmaker returns a class
@@ -159,6 +159,7 @@ class GTFSrDB( Utils ):
                         tu = entity.trip_update
 
                         dbtu = TripUpdate(
+                            id_entity = entity.id,
                             trip_id=tu.trip.trip_id,
                             route_id=tu.trip.route_id,
                             trip_start_time=tu.trip.start_time,
@@ -213,6 +214,7 @@ class GTFSrDB( Utils ):
                     for entity in fm.entity:
                         alert = entity.alert
                         dbalert = Alert(
+                            id_entity = entity.id,
                             start = alert.active_period[0].start,
                             end = alert.active_period[0].end,
                             cause = alert.DESCRIPTOR.enum_types_by_name['Cause'].values_by_number[alert.cause].name,
@@ -220,7 +222,8 @@ class GTFSrDB( Utils ):
                             url = self.getTrans(alert.url, self.lang),
                             header_text = self.getTrans(alert.header_text, self.lang),
                             description_text = self.getTrans(alert.description_text,
-                                                        self.lang)
+                                                        self.lang),
+                            timestamp=timestamp
                             )
 
                         self.session.add(dbalert)
@@ -255,6 +258,7 @@ class GTFSrDB( Utils ):
                     for entity in fm.entity:
                         vp = entity.vehicle
                         dbvp = VehiclePosition(
+                            id_entity = entity.id,
                             trip_id = vp.trip.trip_id,
                             route_id = vp.trip.route_id,
                             trip_start_time = vp.trip.start_time,
@@ -270,12 +274,10 @@ class GTFSrDB( Utils ):
 
                         self.session.add(dbvp)
 
-                    connection = self.engine.raw_connection()
-                    cursor = connection.cursor()
-                    cursor.execute("call {}()".format(self.proc_name))
-                    cursor.close()
-                    connection.commit()
-                    connection.close()
+                    self.session.commit()
+                    logger.info( "Starting session procedure . . ." )
+                    self.session.execute("call {}('{}')".format(self.proc_name, self.deleting_interval))
+                    logger.info( "Session procedure done . . ." )
                     # This does deletes and adds, since it's atomic it never leaves us
                     # without data
                     self.session.commit()

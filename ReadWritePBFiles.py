@@ -44,7 +44,6 @@ class ReadWritePBFile( Utils ):
 
     def downloadFile(self):
         # self.moveFile()
-        logger.info( "Download files in pbFile Folder" )
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy( paramiko.AutoAddPolicy() )
         i = 0
@@ -80,6 +79,14 @@ class ReadWritePBFile( Utils ):
     def logToHdfs(self):
         self.hdfs_log_path = self.getStringTodayFormat( self.hdfs_log_path )
         self.hdfsUploadAndRemove( self.hdfs_url, self.hdfs_username, self.hdfs_log_path, self.logpath, self.logname )
+
+
+class GTFSs:  # file statici .txt usare import pygtfs
+    pass
+
+
+# if not os.path.isdir( "/tmp/logs/GTFSr" ):
+#    os.mkdir( "/tmp/logs/GTFSr" )
 
 
 obj = ReadWritePBFile()

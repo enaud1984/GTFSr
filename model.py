@@ -25,6 +25,7 @@ from sqlalchemy.orm import relationship, backref
 
 Base = declarative_base()
 
+
 # Collapsed types:
 # TripUpdate.trip
 # TripUpdate.vehicle
@@ -42,117 +43,129 @@ Base = declarative_base()
 # The oid is called oid because several of the GTFSr types have string ids
 # TODO: add sequences
 
-class TripUpdate(Base):
+class TripUpdate( Base ):
     __tablename__ = 'trip_updates'
-    oid = Column(Integer, primary_key=True)
+    oid = Column( Integer, primary_key=True )
+
+    id_entity = Column( Integer )
 
     # This replaces the TripDescriptor message
     # TODO: figure out the relations
-    trip_id = Column(String(100))
-    route_id = Column(String(10))
-    trip_start_time = Column(String(8))
-    trip_start_date = Column(String(10))
+    trip_id = Column( String( 100 ) )
+    route_id = Column( String( 10 ) )
+    trip_start_time = Column( String( 8 ) )
+    trip_start_date = Column( String( 10 ) )
     # Put in the string value not the enum
     # TODO: add a domain
-    schedule_relationship = Column(String(9))
+    schedule_relationship = Column( String( 9 ) )
 
     # Collapsed VehicleDescriptor
-    vehicle_id = Column(String(20))
-    vehicle_label = Column(String(15))
-    vehicle_license_plate = Column(String(10))
+    vehicle_id = Column( String( 20 ) )
+    vehicle_label = Column( String( 15 ) )
+    vehicle_license_plate = Column( String( 10 ) )
 
     # moved from the header, and reformatted as datetime
-    timestamp = Column(DateTime)
+    timestamp = Column( DateTime )
 
-    StopTimeUpdates = relationship('StopTimeUpdate', backref='TripUpdate')
-    
-class StopTimeUpdate(Base):
+    StopTimeUpdates = relationship( 'StopTimeUpdate', backref='TripUpdate' )
+
+
+class StopTimeUpdate( Base ):
     __tablename__ = 'stop_time_updates'
-    oid = Column(Integer, primary_key=True)
+    oid = Column( Integer, primary_key=True )
 
     # TODO: Fill one from the other
-    stop_sequence = Column(Integer)
-    stop_id = Column(String(10))
+    stop_sequence = Column( Integer )
+    stop_id = Column( String( 10 ) )
 
     # Collapsed StopTimeEvent
-    arrival_delay = Column(Integer)
-    arrival_time = Column(Integer)
-    arrival_uncertainty = Column(Integer)
+    arrival_delay = Column( Integer )
+    arrival_time = Column( Integer )
+    arrival_uncertainty = Column( Integer )
 
     # Collapsed StopTimeEvent
-    departure_delay = Column(Integer)
-    departure_time = Column(Integer)
-    departure_uncertainty = Column(Integer)
+    departure_delay = Column( Integer )
+    departure_time = Column( Integer )
+    departure_uncertainty = Column( Integer )
 
     # TODO: Add domain
-    schedule_relationship = Column(String(9))
+    schedule_relationship = Column( String( 9 ) )
 
     # Link it to the TripUpdate
-    trip_update_id = Column(Integer, ForeignKey('trip_updates.oid'))
-    
+    trip_update_id = Column( Integer, ForeignKey( 'trip_updates.oid' ) )
+
     # The .TripUpdate is done by the backref in TripUpdate
 
-class Alert(Base):
+
+class Alert( Base ):
     __tablename__ = 'alerts'
 
-    oid = Column(Integer, primary_key=True)
+    oid = Column( Integer, primary_key=True )
+
+    id_entity = Column( Integer )
 
     # Collapsed TimeRange
-    start = Column(Integer)
-    end = Column(Integer)    
+    start = Column( Integer )
+    end = Column( Integer )
 
     # Add domain
-    cause = Column(String(20))
-    effect = Column(String(20))
+    cause = Column( String( 20 ) )
+    effect = Column( String( 20 ) )
 
-    url = Column(String(300))
-    header_text = Column(String(1000))
-    description_text = Column(String(4000))
+    url = Column( String( 300 ) )
+    header_text = Column( String( 1000 ) )
+    description_text = Column( String( 4000 ) )
 
-    InformedEntities = relationship('EntitySelector', backref='Alert')
+    timestamp = Column( DateTime )
 
-class EntitySelector(Base):
+    InformedEntities = relationship( 'EntitySelector', backref='Alert' )
+
+
+class EntitySelector( Base ):
     __tablename__ = 'entity_selectors'
-    oid = Column(Integer, primary_key=True)
+    oid = Column( Integer, primary_key=True )
 
-    agency_id = Column(String(15))
-    route_id = Column(String(10))
-    route_type = Column(Integer)
-    stop_id = Column(String(10))
+    agency_id = Column( String( 15 ) )
+    route_id = Column( String( 10 ) )
+    route_type = Column( Integer )
+    stop_id = Column( String( 10 ) )
 
     # Collapsed TripDescriptor
-    trip_id = Column(String(100))
-    trip_route_id = Column(String(10))
-    trip_start_time = Column(String(8))
-    trip_start_date = Column(String(10))
+    trip_id = Column( String( 100 ) )
+    trip_route_id = Column( String( 10 ) )
+    trip_start_time = Column( String( 8 ) )
+    trip_start_date = Column( String( 10 ) )
 
-    alert_id = Column(Integer, ForeignKey('alerts.oid'))
+    alert_id = Column( Integer, ForeignKey( 'alerts.oid' ) )
 
-class VehiclePosition(Base):
+
+class VehiclePosition( Base ):
     __tablename__ = 'vehicle_positions'
-    oid = Column(Integer, primary_key=True)
+    oid = Column( Integer, primary_key=True )
+
+    id_entity = Column( Integer )
 
     # This replaces the TripDescriptor message
     # TODO: figure out the relations
-    trip_id = Column(String(100))
-    route_id = Column(String(10))
-    trip_start_time = Column(String(8))
-    trip_start_date = Column(String(10))
- 
+    trip_id = Column( String( 100 ) )
+    route_id = Column( String( 10 ) )
+    trip_start_time = Column( String( 8 ) )
+    trip_start_date = Column( String( 10 ) )
+
     # Collapsed VehicleDescriptor
-    vehicle_id = Column(String(20))
-    vehicle_label = Column(String(15))
-    vehicle_license_plate = Column(String(10))
-    
+    vehicle_id = Column( String( 20 ) )
+    vehicle_label = Column( String( 15 ) )
+    vehicle_license_plate = Column( String( 10 ) )
+
     # Collapsed Position
-    position_latitude = Column(Float)
-    position_longitude = Column(Float)
-    position_bearing = Column(Float)
-    position_speed = Column(Float)
+    position_latitude = Column( Float )
+    position_longitude = Column( Float )
+    position_bearing = Column( Float )
+    position_speed = Column( Float )
 
     # moved from the header, and reformatted as datetime
-    timestamp = Column(DateTime)
-   
+    timestamp = Column( DateTime )
+
 
 # So one can loop over all classes to clear them for a new load (-o option)
 AllClasses = (TripUpdate, StopTimeUpdate, Alert, EntitySelector, VehiclePosition)
